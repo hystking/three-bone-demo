@@ -21,7 +21,7 @@ body {
 function tick(time) {
   arm.rotation.y = time * .0002;
   arm.skeleton.bones[1].rotation.z = Math.sin(time * 0.001) * .5;
-  arm.skeleton.bones[2].rotation.y = Math.sin(time * 0.002) * .5;
+  arm.skeleton.bones[2].rotation.y = Math.sin(time * 0.002) * 1;
   arm.skeleton.bones[3].rotation.x = Math.sin(time * 0.003) * .5;
   skeletonHelper.update()
   renderer.render(scene, camera);
@@ -89,8 +89,9 @@ armGeometry.skinWeights = [
 ];
 
 var armMaterial = new THREE.MeshNormalMaterial({
-  wireframe: true,
   skinning: true,
+  side: THREE.DoubleSide,
+  shading: THREE.FlatShading,
 });
 var arm = new THREE.SkinnedMesh(armGeometry, armMaterial);
 var skeletonHelper = new THREE.SkeletonHelper(arm);
