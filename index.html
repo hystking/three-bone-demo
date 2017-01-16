@@ -1,0 +1,104 @@
+<!DOCTYPE html>
+<html>
+<head>
+<meta charset="utf-8">
+<title>Three.js Bone Demo</title>
+<style>
+body {
+  background: #333;
+}
+.view{
+  display: block;
+  margin: 0 auto;
+  background: #000;
+}
+</style>
+</head>
+<body>
+<canvas class="view" id="view" width="640" height="480"></canvas>
+<script src="https://cdnjs.cloudflare.com/ajax/libs/three.js/r83/three.js"></script>
+<script>
+function tick(time) {
+  arm.rotation.y = time * .0002;
+  arm.skeleton.bones[1].rotation.z = Math.sin(time * 0.001) * .5;
+  arm.skeleton.bones[2].rotation.y = Math.sin(time * 0.002) * .5;
+  arm.skeleton.bones[3].rotation.x = Math.sin(time * 0.003) * .5;
+  skeletonHelper.update()
+  renderer.render(scene, camera);
+  requestAnimationFrame(tick);
+}
+
+var renderer = new THREE.WebGLRenderer({
+  canvas: view,
+});
+var scene = new THREE.Scene();
+var camera = new THREE.PerspectiveCamera(
+  60, 640 / 480, 1, 100
+);
+camera.position.set(0, 20, -40);
+camera.lookAt(new THREE.Vector3(0, 5, 0));
+
+var armGeometry = new THREE.CylinderGeometry(5, 5, 40, 3, 4, true);
+armGeometry.bones = [
+  {
+    parent: -1,
+    pos: [0, -20, 0],
+    rotq: [0, 0, 0, 1],
+    scl: [1, 1, 1],
+  },
+  {
+    parent: 0,
+    pos: [0, 10, 0],
+    rotq: [0, 0, 0, 1],
+    scl: [1, 1, 1],
+  },
+  {
+    parent: 1,
+    pos: [0, 10, 0],
+    rotq: [0, 0, 0, 1],
+    scl: [1, 1, 1],
+  },
+  {
+    parent: 2,
+    pos: [0, 10, 0],
+    rotq: [0, 0, 0, 1],
+    scl: [1, 1, 1],
+  },
+  {
+    parent: 3,
+    pos: [0, 10, 0],
+    rotq: [0, 0, 0, 1],
+    scl: [1, 1, 1],
+  },
+];
+
+armGeometry.skinIndices = [
+  new THREE.Vector4(4, 3, -1, -1), new THREE.Vector4(4, 3, -1, -1), new THREE.Vector4(4, 3, -1, -1),
+  new THREE.Vector4(3, 4,  2, -1), new THREE.Vector4(3, 4,  2, -1), new THREE.Vector4(3, 4,  2, -1),
+  new THREE.Vector4(2, 3,  1, -1), new THREE.Vector4(2, 3,  1, -1), new THREE.Vector4(2, 3,  1, -1),
+  new THREE.Vector4(1, 2,  0, -1), new THREE.Vector4(1, 2,  0, -1), new THREE.Vector4(1, 2,  0, -1),
+  new THREE.Vector4(0, 1, -1, -1), new THREE.Vector4(0, 1, -1, -1), new THREE.Vector4(0, 1, -1, -1),
+];
+
+armGeometry.skinWeights = [
+  new THREE.Vector4(.8, .2,  0, 0), new THREE.Vector4(.8, .2,  0, 0), new THREE.Vector4(.8, .2,  0, 0),
+  new THREE.Vector4(.6, .2, .2, 0), new THREE.Vector4(.6, .2, .2, 0), new THREE.Vector4(.6, .2, .2, 0),
+  new THREE.Vector4(.6, .2, .2, 0), new THREE.Vector4(.6, .2, .2, 0), new THREE.Vector4(.6, .2, .2, 0),
+  new THREE.Vector4(.6, .2, .2, 0), new THREE.Vector4(.6, .2, .2, 0), new THREE.Vector4(.6, .2, .2, 0),
+  new THREE.Vector4(.8, .2,  0, 0), new THREE.Vector4(.8, .2,  0, 0), new THREE.Vector4(.8, .2,  0, 0),
+];
+
+var armMaterial = new THREE.MeshNormalMaterial({
+  wireframe: true,
+  skinning: true,
+});
+var arm = new THREE.SkinnedMesh(armGeometry, armMaterial);
+var skeletonHelper = new THREE.SkeletonHelper(arm);
+
+scene.add(arm);
+scene.add(skeletonHelper);
+
+requestAnimationFrame(tick);
+</script>
+</body>
+</html>
