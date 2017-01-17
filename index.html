@@ -4,43 +4,48 @@
 <meta charset="utf-8">
 <title>Three.js Bone Demo</title>
 <style>
-body {
-  background: #333;
-}
 .view{
+  position: absolute;
+  top: 0;
+  left: 0;
   display: block;
-  margin: 0 auto;
-  background: #000;
+  width: 100%;
+  height: 100%;
 }
 </style>
 </head>
 <body>
-<canvas class="view" id="view" width="640" height="480"></canvas>
+<canvas class="view" id="view"></canvas>
 <script src="https://cdnjs.cloudflare.com/ajax/libs/three.js/r83/three.js"></script>
 <script>
 
-var lastTime = 0;
-function tick(time) {
-  var elapsedTime = time - lastTime;
-  arm.rotation.y += elapsedTime * .0002;
-  armMixer.update(elapsedTime);
-  skeletonHelper.update()
-  renderer.render(scene, camera);
-  requestAnimationFrame(tick);
-  lastTime = time;
-}
+/*
+   view のサイズの初期化
+*/
 
-var renderer = new THREE.WebGLRenderer({
-  canvas: view,
-});
+const viewWidth = view.offsetWidth;
+const viewHeight = view.offsetHeight;
+const viewAspectRatio = viewWidth / viewHeight;
+
+view.setAttribute("width", viewWidth);
+view.setAttribute("height", viewHeight);
+
+/*
+   renderer, scene, camera を作る
+*/
+
+var renderer = new THREE.WebGLRenderer({canvas: view})
 var scene = new THREE.Scene();
-var camera = new THREE.PerspectiveCamera(
-  60, 640 / 480, 1, 100
-);
+var camera = new THREE.PerspectiveCamera(60, viewAspectRatio, 1, 100);
 camera.position.set(0, 20, -40);
 camera.lookAt(new THREE.Vector3(0, 5, 0));
 
+/*
+   arm を作る
+*/
+
 var armGeometry = new THREE.CylinderGeometry(5, 5, 40, 3, 4, true);
+
 armGeometry.bones = [
   {
     name: "bone0",
@@ -96,14 +101,18 @@ armGeometry.skinWeights = [
 ];
 
 var armMaterial = new THREE.MeshNormalMaterial({
-  skinning: true,
+  skinning: true, // これをつけないと、bone での変形が効かない
   side: THREE.DoubleSide,
   shading: THREE.FlatShading,
 });
 
 var arm = new THREE.SkinnedMesh(armGeometry, armMaterial);
-var armMixer = new THREE.AnimationMixer(arm);
 
+/*
+   arm のアニメーション関連のオブジェクトを作成
+*/
+
+var armMixer = new THREE.AnimationMixer(arm);
 var waveClip = THREE.AnimationClip.parseAnimation({
   hierarchy: [
     {},
@@ -143,19 +152,19 @@ var twistClip = THREE.AnimationClip.parseAnimation({
       keys: [
         {
           pos: [0, 10, 0],
-          rot: new THREE.Quaternion().setFromEuler(new THREE.Euler(0, - Math.PI / 2, 0)),
+          rot: new THREE.Quaternion().setFromEuler(new THREE.Euler(0, - Math.PI / 3, 0)),
           scl: [1, 1, 1],
           time: 0,
         },
         {
           pos: [0, 10, 0],
-          rot: new THREE.Quaternion().setFromEuler(new THREE.Euler(0, Math.PI / 2, 0)),
+          rot: new THREE.Quaternion().setFromEuler(new THREE.Euler(0, Math.PI / 3, 0)),
           scl: [1, 1, 1],
           time: 1000,
         },
         {
           pos: [0, 10, 0],
-          rot: new THREE.Quaternion().setFromEuler(new THREE.Euler(0, - Math.PI / 2, 0)),
+          rot: new THREE.Quaternion().setFromEuler(new THREE.Euler(0, - Math.PI / 3, 0)),
           scl: [1, 1, 1],
           time: 2000,
         },
@@ -169,9 +178,13 @@ var twistClip = THREE.AnimationClip.parseAnimation({
 var waveAction = armMixer.clipAction(waveClip);
 var twistAction = armMixer.clipAction(twistClip);
 
-var clipSwitchFlag = true;
+var actionSwitchFlag = true; // アクションを切り替えるためのフラグ
+
 window.addEventListener("click", function() {
-  if(clipSwitchFlag) {
+  /* 
+     フラグを見て、アニメーションをクロスフェードで切り替える
+  */
+  if(actionSwitchFlag) {
     waveAction.crossFadeFrom(twistAction, 1000);
     waveAction.play();
     waveAction.enabled = true;
@@ -180,14 +193,45 @@ window.addEventListener("click", function() {
     twistAction.play();
     twistAction.enabled = true;
   }
-  clipSwitchFlag = !clipSwitchFlag;
+  actionSwitchFlag = !actionSwitchFlag;
 })
 
+/*
+   ボーンの確認用のヘルパーを作る
+*/
+
 var skeletonHelper = new THREE.SkeletonHelper(arm);
+
+/*
+   シーンにオブジェクトを追加
+*/
+
 scene.add(arm);
 scene.add(skeletonHelper);
 
-requestAnimationFrame(tick);
+requestAnimationFrame(step);
+
+/*
+   毎フレーム呼び出す処理
+*/
+
+var lastTime = 0; // 前回の時間
+
+function step(time) {
+  var elapsedTime = time - lastTime; // 前回のstepからの経過時間
+
+  arm.rotation.y += elapsedTime * .0002; // 見やすいようにモデルを少しずつ回す
+
+  armMixer.update(elapsedTime);
+  skeletonHelper.update();
+
+  renderer.render(scene, camera);
+
+  lastTime = time;
+
+  requestAnimationFrame(step);
+}
+
 </script>
 </body>
 </html>
