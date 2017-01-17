@@ -18,14 +18,16 @@ body {
 <canvas class="view" id="view" width="640" height="480"></canvas>
 <script src="https://cdnjs.cloudflare.com/ajax/libs/three.js/r83/three.js"></script>
 <script>
+
+var lastTime = 0;
 function tick(time) {
-  arm.rotation.y = time * .0002;
-  arm.skeleton.bones[1].rotation.z = Math.sin(time * 0.001) * .5;
-  arm.skeleton.bones[2].rotation.y = Math.sin(time * 0.002) * 1;
-  arm.skeleton.bones[3].rotation.x = Math.sin(time * 0.003) * .5;
+  var elapsedTime = time - lastTime;
+  arm.rotation.y += elapsedTime * .0002;
+  armMixer.update(elapsedTime);
   skeletonHelper.update()
   renderer.render(scene, camera);
   requestAnimationFrame(tick);
+  lastTime = time;
 }
 
 var renderer = new THREE.WebGLRenderer({
@@ -41,30 +43,35 @@ camera.lookAt(new THREE.Vector3(0, 5, 0));
 var armGeometry = new THREE.CylinderGeometry(5, 5, 40, 3, 4, true);
 armGeometry.bones = [
   {
+    name: "bone0",
     parent: -1,
     pos: [0, -20, 0],
     rotq: [0, 0, 0, 1],
     scl: [1, 1, 1],
   },
   {
+    name: "bone1",
     parent: 0,
     pos: [0, 10, 0],
     rotq: [0, 0, 0, 1],
     scl: [1, 1, 1],
   },
   {
+    name: "bone2",
     parent: 1,
     pos: [0, 10, 0],
     rotq: [0, 0, 0, 1],
     scl: [1, 1, 1],
   },
   {
+    name: "bone3",
     parent: 2,
     pos: [0, 10, 0],
     rotq: [0, 0, 0, 1],
     scl: [1, 1, 1],
   },
   {
+    name: "bone4",
     parent: 3,
     pos: [0, 10, 0],
     rotq: [0, 0, 0, 1],
@@ -93,9 +100,90 @@ var armMaterial = new THREE.MeshNormalMaterial({
   side: THREE.DoubleSide,
   shading: THREE.FlatShading,
 });
-var arm = new THREE.SkinnedMesh(armGeometry, armMaterial);
-var skeletonHelper = new THREE.SkeletonHelper(arm);
 
+var arm = new THREE.SkinnedMesh(armGeometry, armMaterial);
+var armMixer = new THREE.AnimationMixer(arm);
+
+var waveClip = THREE.AnimationClip.parseAnimation({
+  hierarchy: [
+    {},
+    {},
+    {
+      keys: [
+        {
+          pos: [0, 10, 0],
+          rot: new THREE.Quaternion().setFromEuler(new THREE.Euler(- Math.PI / 4, 0, 0)),
+          scl: [1, 1, 1],
+          time: 0,
+        },
+        {
+          pos: [0, 10, 0],
+          rot: new THREE.Quaternion().setFromEuler(new THREE.Euler(Math.PI / 4, 0, 0)),
+          scl: [1, 1, 1],
+          time: 1000,
+        },
+        {
+          pos: [0, 10, 0],
+          rot: new THREE.Quaternion().setFromEuler(new THREE.Euler(- Math.PI / 4, 0, 0)),
+          scl: [1, 1, 1],
+          time: 2000,
+        },
+      ],
+    },
+    {},
+    {},
+  ]
+}, armGeometry.bones);
+
+var twistClip = THREE.AnimationClip.parseAnimation({
+  hierarchy: [
+    {},
+    {},
+    {
+      keys: [
+        {
+          pos: [0, 10, 0],
+          rot: new THREE.Quaternion().setFromEuler(new THREE.Euler(0, - Math.PI / 2, 0)),
+          scl: [1, 1, 1],
+          time: 0,
+        },
+        {
+          pos: [0, 10, 0],
+          rot: new THREE.Quaternion().setFromEuler(new THREE.Euler(0, Math.PI / 2, 0)),
+          scl: [1, 1, 1],
+          time: 1000,
+        },
+        {
+          pos: [0, 10, 0],
+          rot: new THREE.Quaternion().setFromEuler(new THREE.Euler(0, - Math.PI / 2, 0)),
+          scl: [1, 1, 1],
+          time: 2000,
+        },
+      ],
+    },
+    {},
+    {},
+  ]
+}, armGeometry.bones);
+
+var waveAction = armMixer.clipAction(waveClip);
+var twistAction = armMixer.clipAction(twistClip);
+
+var clipSwitchFlag = true;
+window.addEventListener("click", function() {
+  if(clipSwitchFlag) {
+    waveAction.crossFadeFrom(twistAction, 1000);
+    waveAction.play();
+    waveAction.enabled = true;
+  } else {
+    twistAction.crossFadeFrom(waveAction, 1000);
+    twistAction.play();
+    twistAction.enabled = true;
+  }
+  clipSwitchFlag = !clipSwitchFlag;
+})
+
+var skeletonHelper = new THREE.SkeletonHelper(arm);
 scene.add(arm);
 scene.add(skeletonHelper);
 
