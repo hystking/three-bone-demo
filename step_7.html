@@ -3,19 +3,12 @@
 <head>
 <meta charset="utf-8">
 <title>Three.js Bone Demo</title>
-<style>
-.view{
-  position: absolute;
-  top: 0;
-  left: 0;
-  display: block;
-  width: 100%;
-  height: 100%;
-}
-</style>
+<link href="style.css" rel="stylesheet"></link>
 </head>
 <body>
 <canvas class="view" id="view"></canvas>
+<a class="view-source" href="#">View Source</a>
+<script src="view-source.js"></script>
 <script src="https://cdnjs.cloudflare.com/ajax/libs/three.js/r83/three.js"></script>
 <script>
 
@@ -144,57 +137,8 @@ var waveClip = THREE.AnimationClip.parseAnimation({
   ]
 }, armGeometry.bones);
 
-var twistClip = THREE.AnimationClip.parseAnimation({
-  hierarchy: [
-    {},
-    {},
-    {
-      keys: [
-        {
-          pos: [0, 10, 0],
-          rot: new THREE.Quaternion().setFromEuler(new THREE.Euler(0, - Math.PI / 3, 0)),
-          scl: [1, 1, 1],
-          time: 0,
-        },
-        {
-          pos: [0, 10, 0],
-          rot: new THREE.Quaternion().setFromEuler(new THREE.Euler(0, Math.PI / 3, 0)),
-          scl: [1, 1, 1],
-          time: 1000,
-        },
-        {
-          pos: [0, 10, 0],
-          rot: new THREE.Quaternion().setFromEuler(new THREE.Euler(0, - Math.PI / 3, 0)),
-          scl: [1, 1, 1],
-          time: 2000,
-        },
-      ],
-    },
-    {},
-    {},
-  ]
-}, armGeometry.bones);
-
 var waveAction = armMixer.clipAction(waveClip);
-var twistAction = armMixer.clipAction(twistClip);
-
-var actionSwitchFlag = true; // アクションを切り替えるためのフラグ
-
-window.addEventListener("click", function() {
-  /* 
-     フラグを見て、アニメーションをクロスフェードで切り替える
-  */
-  if(actionSwitchFlag) {
-    waveAction.crossFadeFrom(twistAction, 1000);
-    waveAction.play();
-    waveAction.enabled = true;
-  } else {
-    twistAction.crossFadeFrom(waveAction, 1000);
-    twistAction.play();
-    twistAction.enabled = true;
-  }
-  actionSwitchFlag = !actionSwitchFlag;
-})
+waveAction.play();
 
 /*
    ボーンの確認用のヘルパーを作る
@@ -208,8 +152,6 @@ var skeletonHelper = new THREE.SkeletonHelper(arm);
 
 scene.add(arm);
 scene.add(skeletonHelper);
-
-requestAnimationFrame(step);
 
 /*
    毎フレーム呼び出す処理
@@ -231,6 +173,8 @@ function step(time) {
 
   requestAnimationFrame(step);
 }
+
+requestAnimationFrame(step);
 
 </script>
 </body>
