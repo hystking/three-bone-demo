@@ -1,45 +1,3 @@
-<!DOCTYPE html>
-<html>
-  <head>
-    <title>Three.js Bone Demo</title>
-    <style>
-.view{
-  position: absolute;
-  top: 0;
-  left: 0;
-  display: block;
-  width: 100%;
-  height: 100%;
-}
-
-.view-source {
-  position: absolute;
-  right: 10px;
-  bottom: 10px;
-  background: #fff;
-  display: block;
-  padding: 1em;
-  color: #333;
-  text-decoration: none;
-  font-size: 12px;
-}
-    </style>
-  </head>
-  <body>
-    <canvas class="view" id="view"></canvas><a class="view-source" href="#">View Source</a>
-    <script>
-(function(){
-  var doms = document.getElementsByClassName("view-source");
-  for(var i=0; i<doms.length; i++) {
-    var dom = doms[i];
-    dom.addEventListener("click", e => {
-      window.open("https://github.com/hystking/three-bone-demo/blob/master/" + window.location.pathname.split("/").splice(2).join("/"));
-    })
-  }
-})();
-    </script>
-    <script src="https://cdnjs.cloudflare.com/ajax/libs/three.js/r83/three.js"></script>
-    <script>
 /*
    view のサイズの初期化
 */
@@ -166,6 +124,7 @@ var waveClip = THREE.AnimationClip.parseAnimation({
 }, armGeometry.bones);
 
 var waveAction = armMixer.clipAction(waveClip);
+waveAction.play();
 
 /*
    ボーンの確認用のヘルパーを作る
@@ -191,6 +150,7 @@ function step(time) {
 
   arm.rotation.y += elapsedTime * .0002; // 見やすいようにモデルを少しずつ回す
 
+  armMixer.update(elapsedTime);
   skeletonHelper.update();
 
   renderer.render(scene, camera);
@@ -201,6 +161,3 @@ function step(time) {
 }
 
 requestAnimationFrame(step);
-    </script>
-  </body>
-</html>
