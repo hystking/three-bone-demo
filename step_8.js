@@ -157,7 +157,9 @@ var armMixer = new THREE.AnimationMixer(arm);
 var waveAction = armMixer.clipAction(waveClip);
 var twistAction = armMixer.clipAction(twistClip);
 
-var actionSwitchFlag = true; // アクションを切り替えるためのフラグ
+var actionSwitchFlag = false; // アクションを切り替えるためのフラグ
+
+waveAction.play();
 
 window.addEventListener("click", function() {
   /* 
