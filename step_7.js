@@ -91,7 +91,6 @@ var arm = new THREE.SkinnedMesh(armGeometry, armMaterial);
    arm のアニメーション関連のオブジェクトを作成
 */
 
-var armMixer = new THREE.AnimationMixer(arm);
 var waveClip = THREE.AnimationClip.parseAnimation({
   hierarchy: [
     {},
@@ -123,7 +122,9 @@ var waveClip = THREE.AnimationClip.parseAnimation({
   ]
 }, armGeometry.bones);
 
+var armMixer = new THREE.AnimationMixer(arm);
 var waveAction = armMixer.clipAction(waveClip);
+
 waveAction.play();
 
 /*
