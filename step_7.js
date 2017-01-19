@@ -2,9 +2,9 @@
    view のサイズの初期化
 */
 
-const viewWidth = view.offsetWidth;
-const viewHeight = view.offsetHeight;
-const viewAspectRatio = viewWidth / viewHeight;
+var viewWidth = view.offsetWidth;
+var viewHeight = view.offsetHeight;
+var viewAspectRatio = viewWidth / viewHeight;
 
 view.setAttribute("width", viewWidth);
 view.setAttribute("height", viewHeight);
