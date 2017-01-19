@@ -64,7 +64,7 @@ view.setAttribute("height", viewHeight);
 
 var renderer = new THREE.WebGLRenderer({canvas: view})
 var scene = new THREE.Scene();
-var camera = new THREE.PerspectiveCamera(60, viewAspectRatio, 1, 100);
+var camera = new THREE.PerspectiveCamera(60, viewAspectRatio, 1, 400);
 camera.position.set(0, 40, -80);
 camera.lookAt(new THREE.Vector3(0, 5, 0));
 
@@ -139,7 +139,7 @@ var ctlh = new THREE.Object3D();
 var armWrapper, arm;
 var arms = [];
 
-for(var i=0; i<64; i++) {
+for(var i=0; i<8*8; i++) {
   armWrapper = new THREE.Object3D();
   arm = new THREE.SkinnedMesh(armGeometry, armMaterial);
   arm.userData.boneRotationSpeeds = [
@@ -152,9 +152,9 @@ for(var i=0; i<64; i++) {
   ];
   arm.position.y = 23;
   armWrapper.rotation.set(
-    Math.random() * TAU,
-    Math.random() * TAU,
-    Math.random() * TAU
+    ((i/8|0)/8) * Math.PI * 2,
+    0,
+    Math.acos((i%8)/8 * 2 - 1) * 2
   );
   arms.push(arm);
   armWrapper.add(arm);
