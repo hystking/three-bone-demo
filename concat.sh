@@ -7,3 +7,4 @@ cat head.html step_6.js tail.html > step_6.html
 cat head.html step_7.js tail.html > step_7.html
 cat head.html step_8.js tail.html > step_8.html
 cat head.html step_9.js tail.html > step_9.html
+cat head.html ia_ia.js tail.html > ia_ia.html
