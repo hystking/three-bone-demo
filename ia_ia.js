@@ -81,10 +81,37 @@ armGeometry.skinWeights = [
   new THREE.Vector4(.8, .2,  0, 0), new THREE.Vector4(.8, .2,  0, 0), new THREE.Vector4(.8, .2,  0, 0),
 ];
 
-var armMaterial = new THREE.MeshNormalMaterial({
+var refractionCube = new THREE.CubeTextureLoader().load([
+  "cubemap2.jpg",
+  "cubemap2.jpg",
+  "cubemap3.jpg",
+  "cubemap2.jpg",
+  "cubemap1.jpg",
+  "cubemap2.jpg",
+]);
+
+var map = new THREE.TextureLoader().load("map.jpg");
+var map2 = new THREE.TextureLoader().load("albedomap.jpg");
+var map3 = new THREE.TextureLoader().load("bumpmap.jpg");
+
+map3.repeat.y = map2.repeat.y = map.repeat.y = 3;
+map3.repeat.x = map2.repeat.x = map.repeat.x = 1;
+map.wrapS = map.wrapT = THREE.RepeatWrapping;
+map2.wrapS = map2.wrapT = THREE.RepeatWrapping;
+map3.wrapS = map3.wrapT = THREE.RepeatWrapping;
+
+var armMaterial = new THREE.MeshStandardMaterial({
   skinning: true, // これをつけないと、bone での変形が効かない
   side: THREE.DoubleSide,
-  shading: THREE.FlatShading,
+  envMap: refractionCube,
+  roughnessMap: map,
+  metalnessMap: map,
+  bumpMap: map3,
+  bumpScale: .5,
+  map: map2,
+  metalness: .9,
+  refractionRatio: .9,
+  color: 0xffeedd,
 });
 
 var ctlh = new THREE.Object3D();
@@ -92,7 +119,7 @@ var ctlh = new THREE.Object3D();
 var armWrapper, arm;
 var arms = [];
 
-for(var i=0; i<8*8; i++) {
+for(var i=0; i< 64; i++) {
   armWrapper = new THREE.Object3D();
   arm = new THREE.SkinnedMesh(armGeometry, armMaterial);
   arm.userData.boneRotationSpeeds = [
@@ -104,16 +131,23 @@ for(var i=0; i<8*8; i++) {
     new THREE.Vector3(0, 0, 0),
   ];
   arm.position.y = 23;
-  armWrapper.rotation.set(
-    ((i/8|0)/8) * Math.PI * 2,
-    0,
-    Math.acos((i%8)/8 * 2 - 1) * 2
-  );
+
+  var a = (i / 8 | 0) / 8;
+  var b = (i % 8) / 8;
+  a += Math.random() / 8;
+  b += Math.random() / 8;
+
+  armWrapper.rotateY(a * Math.PI * 2);
+  armWrapper.rotateX(Math.acos(b * 2 - 1));
+
   arms.push(arm);
   armWrapper.add(arm);
   ctlh.add(armWrapper);
 }
 
+var light = new THREE.DirectionalLight(0xcceef9);
+
+scene.add(light)
 scene.add(ctlh);
 
 /*
@@ -133,9 +167,9 @@ function step(time) {
     for(var j=0; j<arm.skeleton.bones.length; j++) {
       bone = arm.skeleton.bones[j];
       speed = arm.userData.boneRotationSpeeds[j];
-      bone.rotation.x = Math.sin(time * speed.x) * .5;
-      bone.rotation.y = Math.sin(time * speed.y);
-      bone.rotation.z = Math.sin(time * speed.z) * .5;
+      bone.rotation.x = Math.sin(time * speed.x) * .4;
+      bone.rotation.y = Math.sin(time * speed.y) * .6;
+      bone.rotation.z = Math.sin(time * speed.z) * .4;
     }
   }
 
